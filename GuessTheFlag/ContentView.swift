@@ -46,15 +46,11 @@ struct ContentView: View {
                                 hiddenImage.toggle()
                             }
                         } label: {
-                            if number == correctAnswer {
                                 FlagImage(image: countries[number])
-                                    .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0))
+                                    .opacity(hiddenImage && number != correctAnswer ? 0.25 : 1)
+                                    .rotation3DEffect(.degrees(angle), axis: (x: 0, y: number == correctAnswer ? 1 : -1, z: 0))
                                     .animation(.default, value: angle)
-                            } else {
-                                FlagImage(image: countries[number])
-                                    .opacity(hiddenImage ? 0.25 : 1)
-                                    .rotation3DEffect(.degrees(angle), axis: (x: 0, y: -1, z: 0))
-                            }
+
                             
                         }
                     }
