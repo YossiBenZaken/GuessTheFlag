@@ -15,6 +15,8 @@ struct ContentView: View {
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Monaco", "Nigeria", "Poland", "Russia", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
     @State private var score: Int = 0
+    @State private var angle = 0.0
+    @State private var hiddenImage = false
     var body: some View {
         ZStack {
             RadialGradient(stops: [
@@ -39,11 +41,21 @@ struct ContentView: View {
                     ForEach(0..<3) { number in
                         Button {
                             flagTapped(number)
+                            withAnimation {
+                                angle += 360
+                                hiddenImage.toggle()
+                            }
                         } label: {
-                            Image(countries[number])
-                                .renderingMode(.original)
-                                .clipShape(Capsule())
-                                .shadow(radius: 5)
+                            if number == correctAnswer {
+                                FlagImage(image: countries[number])
+                                    .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0))
+                                    .animation(.default, value: angle)
+                            } else {
+                                FlagImage(image: countries[number])
+                                    .opacity(hiddenImage ? 0.25 : 1)
+                                    .rotation3DEffect(.degrees(angle), axis: (x: 0, y: -1, z: 0))
+                            }
+                            
                         }
                     }
                 }
@@ -93,6 +105,7 @@ struct ContentView: View {
         if scoreTitle == "Wrong" {
             score = 0
         }
+        hiddenImage.toggle()
     }
     func reset() {
         score = 0
@@ -103,5 +116,28 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+struct Title: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle)
+            .foregroundColor(.blue)
+    }
+}
+extension View {
+    func titleStyle() -> some View {
+        modifier(Title())
+    }
+}
+
+struct FlagImage: View {
+    let image: String
+    var body: some View {
+        Image(image)
+            .renderingMode(.original)
+            .clipShape(Capsule())
+            .shadow(radius: 5)
     }
 }
